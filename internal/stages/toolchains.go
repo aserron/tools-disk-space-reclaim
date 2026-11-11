@@ -93,30 +93,38 @@ func (s *ToolchainsStage) Scan(ctx context.Context, _ model.ScanOptions) (*model
 		res.TotalSize += sz
 	}
 
-	// 2. Duplicate / Legacy Ruby installations outside active rbenv
-	legacyRubyDirs := []struct {
-		id   string
-		name string
-		path string
-	}{
-		{"ruby-rvm-progdata", "Legacy RVM Ruby Store (C:\\ProgramData\\rvm)", `C:\ProgramData\rvm`},
-		{"ruby-c-ruby27", "Standalone RubyInstaller (C:\\Ruby27-x64)", `C:\Ruby27-x64`},
+	// 2. Duplicate / Legacy Ruby & Chocolatey installations
+	progData := os.Getenv("ProgramData")
+	if progData == "" {
+		progData = `C:\ProgramData`
 	}
-	for _, lr := range legacyRubyDirs {
+	legacyDirs := []struct {
+		id    string
+		name  string
+		desc  string
+		path  string
+		admin bool
+	}{
+		{"ruby-rvm-progdata", "Legacy RVM Ruby Store (ProgramData\\rvm)", "Removes duplicate Ruby installation outside C:\\Ruby-on-Windows", filepath.Join(progData, "rvm"), true},
+		{"ruby-c-ruby27", "Standalone RubyInstaller (C:\\Ruby27-x64)", "Removes duplicate Ruby installation outside C:\\Ruby-on-Windows", `C:\Ruby27-x64`, false},
+		{"choco-store", "Legacy Chocolatey Store (ProgramData\\chocolatey — after Scoop migration)", "Removes Chocolatey package cache/shims after migrating CLI tools to Scoop", filepath.Join(progData, "chocolatey"), true},
+	}
+	for _, lr := range legacyDirs {
 		item := lr
 		sz := fsutil.PathSize(ctx, item.path)
 		if sz == 0 {
 			continue
 		}
 		res.Items = append(res.Items, &model.TargetItem{
-			ID:          item.id,
-			StageID:     s.ID(),
-			Name:        item.name,
-			Description: "Removes duplicate Ruby installation outside C:\\Ruby-on-Windows",
-			Path:        item.path,
-			SizeBytes:   sz,
-			Risk:        model.RiskModerate,
-			Selected:    false,
+			ID:            item.id,
+			StageID:       s.ID(),
+			Name:          item.name,
+			Description:   item.desc,
+			Path:          item.path,
+			SizeBytes:     sz,
+			Risk:          model.RiskModerate,
+			RequiresAdmin: item.admin,
+			Selected:      false,
 			Execute: func(_ context.Context, dryRun bool) (int64, string, error) {
 				if dryRun {
 					return sz, fmt.Sprintf("[DRY-RUN] Would remove %s (%s)", item.path, model.FormatBytes(sz)), nil

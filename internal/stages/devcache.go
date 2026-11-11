@@ -45,12 +45,19 @@ func (s *DevCacheStage) Scan(ctx context.Context, _ model.ScanOptions) (*model.S
 	}
 
 	localAppData := os.Getenv("LOCALAPPDATA")
+	home, _ := os.UserHomeDir()
 	if localAppData == "" {
-		home, _ := os.UserHomeDir()
 		localAppData = filepath.Join(home, "AppData", "Local")
 	}
 
 	defs := []cacheTargetDef{
+		{
+			id:          "cache-scoop",
+			name:        "Scoop Download Cache (~\\scoop\\cache)",
+			description: "Clears downloaded Scoop installer archives in ~\\scoop\\cache",
+			path:        filepath.Join(home, "scoop", "cache"),
+			keepRoot:    true,
+		},
 		{
 			id:          "cache-npm",
 			name:        "npm Cache (AppData\\Local\\npm-cache)",

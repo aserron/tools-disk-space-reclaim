@@ -10,9 +10,9 @@
 | :--- | :--- | :--- |
 | `wsl` | **Stage 1: WSL2 Distributions** | Cleans internal Linux caches (`~/.cache` for Playwright, uv, JetBrains, Chrome, Homebrew, pnpm, node-gyp, Prisma), `/tmp/.trash`, local CUDA `.deb` archives, `apt-get clean`, `journalctl --vacuum-time=3d`, old `.vscode-remote-containers` server builds, runs `fstrim -v /` + `Optimize-VHD` compaction on `ext4.vhdx`, and supports relocating distros off `C:\` to `E:\Docker\<Distro>`. |
 | `docker` | **Stage 2: Docker Engine & VHDX** | Integrates `E:\aserron\tools\bcht\Invoke-DockerCleanup.ps1` (Safe Prune or Deep Prune with volumes) and compacts `docker_data.vhdx` via Hyper-V `Optimize-VHD` / `diskpart`. |
-| `devcache` | **Stage 3: Dev Caches & Temp** | Scans and cleans `npm-cache`, `pnpm-cache` (+ `pnpm store prune`), `uv`, `hatch`, `Yarn`, `pip`, `SquirrelTemp`, `Ollama\updates_v2`, `%TEMP%`, `C:\tmp`, `C:\OneDriveTemp`, and empties the Windows Recycle Bin (`C:\`, `E:\`). |
+| `devcache` | **Stage 3: Dev Caches & Temp** | Scans and cleans `~\scoop\cache`, `npm-cache`, `pnpm-cache` (+ `pnpm store prune`), `uv`, `hatch`, `Yarn`, `pip`, `SquirrelTemp`, `Ollama\updates_v2`, `%TEMP%`, `C:\tmp`, `C:\OneDriveTemp`, and empties the Windows Recycle Bin (`C:\`, `E:\`). |
 | `installers` | **Stage 4: OEM Drivers & Installers** | Removes OEM driver extraction directories (`C:\SWSetup`, `C:\Drivers`, `Downloads\HP Downloads`, `C:\AMD`, `C:\NVIDIA`) and lists large standalone installers (`.exe`, `.msi`, `.iso`, `.msix`) in `Downloads`. |
-| `toolchains` | **Stage 5: IDEs & Toolchains** | Detects secondary NVM Node.js versions (`C:\nvm4w\nvm`), duplicate Ruby installations outside `C:\Ruby-on-Windows`, JetBrains `acp-agents` & IDE caches, and Chrome On-Device AI models (`OptGuideOnDeviceModel`, `Snapshots`). |
+| `toolchains` | **Stage 5: IDEs & Toolchains** | Detects secondary NVM Node.js versions (`C:\nvm4w\nvm`), duplicate Ruby installations outside `C:\Ruby-on-Windows`, legacy Chocolatey store (`C:\ProgramData\chocolatey`), JetBrains `acp-agents` & IDE caches, and Chrome On-Device AI models (`OptGuideOnDeviceModel`, `Snapshots`). |
 | `system` | **Stage 6: Windows System & Projects** | Read-only telemetry for `pagefile.sys`, `hiberfil.sys`, Windows Search Index (`Windows.edb`), and **Windows Reserved Storage (protected Read-Only)**. Offers `DISM /StartComponentCleanup` (`WinSxS`) and scans `C:\projects` for large `.sql`/`.bak` dumps and `node_modules` trees. |
 
 ---
@@ -35,6 +35,13 @@ E:\aserron\tools\disk\space-reclaim\
 ├── go.mod                          # module spacereclaim (go 1.26.5)
 ├── main.go                         # Root entrypoint wrapper
 ├── README.md
+├── docs\
+│   ├── README.md                   # Documentation hub index
+│   ├── adr\                        # 10 chronological Architectural Decision Records (0001..0010)
+│   ├── wiki\                       # Help center, CLI/TUI guides & Chocolatey->Scoop migration guide
+│   ├── architecture\               # Mermaid architecture & sequence diagrams
+│   ├── runbooks\                   # Operational runbooks (VHDX compaction, Scoop migration)
+│   └── development\                # Guide for adding new caches and stages
 ├── scripts\
 │   └── build.ps1                   # Runs unit tests and builds space-reclaim.exe
 ├── cmd\
@@ -97,3 +104,15 @@ space-reclaim --stages all --risk moderate --dry-run --yes
 # Run only Safe developer cache and temp cleanup non-interactively
 space-reclaim --stages devcache --risk safe --yes
 ```
+
+---
+
+## Documentation (`docs/`)
+
+Full engineering and operational documentation is located in [`docs/README.md`](docs/README.md):
+
+- **[Architecture Decision Records (`docs/adr/`)](docs/adr/README.md)** — All 10 architectural decisions in chronological order (`0001`..`0010`).
+- **[Help Wiki (`docs/wiki/`)](docs/wiki/Home.md)** — Quickstart, Interactive TUI guide, CLI reference, Stage reference, Safety model, and **[Chocolatey to Scoop Migration Guide](docs/wiki/06-chocolatey-to-scoop-migration.md)**.
+- **[Architecture & Dataflow (`docs/architecture/`)](docs/architecture/README.md)** — Component and lifecycle sequence diagrams.
+- **[Operational Runbooks (`docs/runbooks/`)](docs/runbooks/README.md)** — Playbooks for emergency `C:\` recovery, VHDX compaction, and Scoop migration.
+- **[Development Guide (`docs/development/`)](docs/development/README.md)** — Extending `space-reclaim` with new caches or stages.
