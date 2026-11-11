@@ -1,0 +1,28 @@
+# Compiled binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+
+# Go workspace file
+go.work
+go.work.sum
+
+# IDE / Editor folders
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Scratch / local logs
+*.log
+/tmp/
