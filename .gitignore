@@ -1,20 +1,29 @@
-# Compiled binaries
+# Compiled binaries & build outputs
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+/bin/
+/dist/
+/build/
 
-# Test binary, built with `go test -c`
+# Test binaries & Go coverage / profiling outputs
 *.test
-
-# Output of the go coverage tool
 *.out
+*.prof
+coverage.txt
 coverage.html
 
-# Go workspace file
+# Go workspace & vendor
 go.work
 go.work.sum
+/vendor/
+
+# Environment & local configuration
+.env
+.env.*
+!.env.example
 
 # IDE / Editor folders
 .idea/
@@ -23,9 +32,20 @@ go.work.sum
 *.swo
 *~
 
-# Scratch / local logs
-*.log
-/tmp/
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
 
-# log folder
-.log/*
+# Runtime execution logs
+*.log
+.log/
+
+# Produced / generated files & artifacts
+.out/
+.artifacts/
+
+# Ephemeral scratch & temporary files
+.tmp/
+.scratch/
+/tmp/
