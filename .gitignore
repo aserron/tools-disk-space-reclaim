@@ -26,3 +26,6 @@ go.work.sum
 # Scratch / local logs
 *.log
 /tmp/
+
+# log folder
+.log/*
